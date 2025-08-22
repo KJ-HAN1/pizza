@@ -1,4 +1,4 @@
-package org.example.model.payment;
+package org.example.payment;
 
 
 import java.util.*;
@@ -15,8 +15,8 @@ public class CashRegister {
 
     public CashRegister() {
         //초기 재고는 종류별로 10개씩 채움
-        for (int i = 0; i < 10; i++) {
-            stock.put(i, 10);
+        for (int i = 0; i < MONEYTYPE.size(); i++) {
+            stock.put(MONEYTYPE.get(i), 10);
         }
     }
 
@@ -31,34 +31,27 @@ public class CashRegister {
     }
 
     /**
-     * changeAmount원을 반환할 수 있는지 확인
-     */
-    public boolean hasSufficientChange(int changeAmount) {
-        Map<Integer,Integer> temp = new HashMap<>();
-        for (int i = 0; i < MONEYTYPE.size(); i++) {
-            int avail = stock.get(MONEYTYPE.get(i));
-            int use = Math.min(avail, changeAmount / MONEYTYPE.get(i));
-            temp.put(MONEYTYPE.get(i), use);
-            changeAmount -= use * MONEYTYPE.get(i);
-        }
-        return changeAmount == 0;
-    }
-
-    /**
      * 잔돈을 계산하여 (권종별 개수 맵) 반환.
      * 계산 후 재고에서 차감.
      */
-    public Map<Integer,Integer> dispenseChange(int changeAmount) {
+    public Map<Integer,Integer> returnChange(int changeAmount) {
         Map<Integer,Integer> result = new LinkedHashMap<>();
+        //잔돈 반환이 가능한지 check
+        Map<Integer,Integer> tempStock = new HashMap<>(stock);
+
         for (int i = 0; i < MONEYTYPE.size(); i++) {
-            int avail = stock.get(MONEYTYPE.get(i));
+            int avail = tempStock.get(MONEYTYPE.get(i));
             int use = Math.min(avail, changeAmount / MONEYTYPE.get(i));
             if (use > 0) {
-                stock.put(MONEYTYPE.get(i), avail - use);
+                tempStock.put(MONEYTYPE.get(i), avail - use);
                 result.put(MONEYTYPE.get(i), use);
                 changeAmount -= use * MONEYTYPE.get(i);
             }
         }
+        if (changeAmount > 0) {
+            return null;
+        }
+        stock.putAll(tempStock);
         return result;
     }
 
