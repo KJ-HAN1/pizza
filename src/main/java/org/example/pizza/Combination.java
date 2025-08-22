@@ -1,10 +1,10 @@
-package org.example.model.pizza;
+package org.example.pizza;
 
-import org.example.model.Topping.ToppingType;
+import org.example.Topping.ToppingType;
 
 import java.util.List;
 
-import static org.example.model.Topping.ToppingType.*;
+import static org.example.Topping.ToppingType.*;
 
 public class Combination implements Pizza {
     @Override

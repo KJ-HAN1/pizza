@@ -2,9 +2,9 @@
  * 현재 치즈, 페퍼로니, 콤비네이션 피자만 제공
  *
 */
-package org.example.model.pizza;
+package org.example.pizza;
 
-import org.example.model.Topping.ToppingType;
+import org.example.Topping.ToppingType;
 
 import java.util.List;
 

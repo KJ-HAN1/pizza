@@ -1,29 +1,29 @@
-package org.example.model.pizza;
+package org.example.pizza;
 
-import org.example.model.Topping.ToppingType;
+import org.example.Topping.ToppingType;
 
 import java.util.List;
 
-import static org.example.model.Topping.ToppingType.*;
+import static org.example.Topping.ToppingType.*;
 
-public class Cheeze implements Pizza {
+public class Pepperoni implements Pizza {
     @Override
     public String getName() {
-        return "Cheeze Pizza";
+        return "Pepperoni Pizza";
     }
 
     @Override
     public int getPrice() {
-        return 12000;
+        return 15000;
     }
 
     @Override
     public List<ToppingType> getToppings() {
         return List.of(
-                CHEESE,
                 SAUCE,
                 DOUGH,
-                ONION
+                ONION,
+                PEPPERONI
         );
     }
 }
