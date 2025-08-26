@@ -4,7 +4,7 @@
 */
 package org.example.pizza;
 
-import org.example.Topping.ToppingType;
+import org.example.topping.ToppingType;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package org.example.Topping;
+package org.example.topping;
 
 import org.example.pizza.Pizza;
 

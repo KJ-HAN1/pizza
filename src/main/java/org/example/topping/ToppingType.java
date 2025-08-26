@@ -1,4 +1,4 @@
-package org.example.Topping;
+package org.example.topping;
 
 public enum ToppingType {
     CHEESE(3000,true),
