@@ -1,14 +1,13 @@
 package org.example.vending;
 
 import org.example.Config;
-import org.example.Topping.ToppingInventory;
-import org.example.Topping.ToppingType;
+import org.example.promotion.Promotion;
+import org.example.topping.ToppingInventory;
+import org.example.topping.ToppingType;
 import org.example.payment.Cash;
 import org.example.payment.CashRegister;
 import org.example.pizza.Pizza;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,6 @@ import java.util.Scanner;
 
 public class VendingMachine {
     private static final String ADMIN_PW = Config.ADMIN_PW;
-    private static final LocalDate EVENT_START = Config.EVENT_START;
     private int totalSalesCount = 0;
     private int totalSalesAmount = 0;
 
@@ -24,12 +22,16 @@ public class VendingMachine {
     private final ToppingInventory inventory;
     private final CashRegister cashRegister;
     private final Scanner scanner;
+    private final List<Promotion> promotions;
 
-    public VendingMachine(List<Pizza> menu, ToppingInventory inventory, CashRegister cashRegister, Scanner scanner) {
+
+    public VendingMachine(List<Pizza> menu, ToppingInventory inventory,
+                          CashRegister cashRegister, Scanner scanner, List<Promotion> promotions) {
         this.menu = menu;
         this.inventory = inventory;
         this.cashRegister = cashRegister;
         this.scanner = scanner;
+        this.promotions = promotions;
     }
 
     private void printMenu() {
@@ -40,14 +42,6 @@ public class VendingMachine {
         System.out.println("0) 종료\n99) 관리자 모드\n선택> ");
     }
 
-    //이벤트 진행 현재일 기준으로 날짜 계산
-    private boolean eventPeriod() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate now = LocalDate.now();
-        LocalDate endEvent = EVENT_START.plusMonths(1);
-
-        return !now.isBefore(EVENT_START) && !now.isAfter(endEvent);
-    }
 
     private void processOrder(Pizza selected) {
         if (!inventory.hasStock(selected)) {
@@ -140,26 +134,8 @@ public class VendingMachine {
             }
         }
 
-        // 치즈폭탄 이벤트 50프로 확률로 치즈 추가
-        if (eventPeriod()) {
-            System.out.println("이벤트 중임 ㅇㅇㅇㅇㅇㅇㅇㅇ");
-            int baseCheeseCount = 0;
-            for (int i = 0; i < baseToppings.size(); i++) {
-                if (baseToppings.get(i) == ToppingType.CHEESE) baseCheeseCount++;
-            }
-
-            int extraCheeseCount = extras.getOrDefault(ToppingType.CHEESE, 0);
-            int totalCheeseUsed = baseCheeseCount + extraCheeseCount;
-
-            int remainingCheeseStock = inventory.getStock(ToppingType.CHEESE);
-
-            // 피자에 치즈가 있고, 추가토핑까지 포함해 치즈 재고 1개 이상이면 이벤트 가능
-            if (totalCheeseUsed >= 1 && remainingCheeseStock >= 1) {
-                if (Math.random() < 0.5) {
-                    inventory.consume(ToppingType.CHEESE);
-                    System.out.println("🎇🎇🎇치즈💣 이벤트 당첨! 무료 치즈 토핑 추가!🎇🎇🎇");
-                }
-            }
+        for (Promotion promotion : promotions) {
+            promotion.apply(selected, inventory);
         }
 
         totalSalesCount++;

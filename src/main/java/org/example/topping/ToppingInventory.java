@@ -28,10 +28,6 @@ public class ToppingInventory {
         }
         return true;
     }
-    public boolean hasStock(ToppingType topping) {
-        if (!topping.isStockManage()) return true;
-        return stock.getOrDefault(topping, 0) > 0;
-    }
 
     public void consume(Pizza pizza) {
         List<ToppingType> toppings = pizza.getToppings();
@@ -63,6 +59,10 @@ public class ToppingInventory {
 
     public int getStock(ToppingType topping) {
         return stock.getOrDefault(topping, 0);
+    }
+
+    public boolean checkStock(ToppingType topping) {
+        return stock.get(topping) > 1;
     }
 
     @Override
