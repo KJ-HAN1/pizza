@@ -3,6 +3,7 @@ package org.example.promotion;
 import org.example.Config;
 import org.example.pizza.PizzaTemplate;
 import org.example.topping.ToppingInventory;
+import org.example.topping.ToppingType;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -10,35 +11,40 @@ import java.time.LocalDate;
 import static org.example.topping.ToppingType.CHEESE;
 
 @Component
-public class CheesePromotion implements PromotionPolicy {
+public class CheesePromotion implements ToppingPromotionPolicy {
     private final LocalDate startPromotionDate;
     private final LocalDate endPromotionDate;
+    private final float chance;
 
     public CheesePromotion() {
         this.startPromotionDate = Config.EVENT_START;
         this.endPromotionDate = startPromotionDate.plusMonths(1);
+        this.chance = 0.5f;
     }
 
     @Override
     public boolean isActive() {
         LocalDate now = LocalDate.now();
-
         return !now.isBefore(startPromotionDate) && !now.isAfter(endPromotionDate);
     }
 
-    private boolean hasCheese(PizzaTemplate pizza) {
-        return pizza.getToppings().contains(CHEESE);
+    private boolean isCheesePromotionWon(){
+        return Math.random() < chance;
     }
 
-    // 치즈 토핑이 있고, 재고가 남아 있다면 50% 확률로 이벤트 발동
+    private boolean canApply(PizzaTemplate pizza, ToppingInventory inventory) {
+        return isActive() && pizza.getToppings().contains(CHEESE)
+                && inventory.checkStock(CHEESE) && isCheesePromotionWon();
+    }
+
     @Override
-    public void apply(PizzaTemplate pizza, ToppingInventory inventory) {
-        if(isActive() && hasCheese(pizza) && inventory.checkStock(CHEESE)) {
-            if (Math.random() < 0.5) {
-                inventory.consume(CHEESE);
-                System.out.println("🎇🎇 치즈💣 이벤트 당첨! 무료 치즈 토핑 추가! 🎇🎇");
-            }
-        }
+    public boolean shouldApply(PizzaTemplate pizza, ToppingInventory inventory) {
+        return canApply(pizza, inventory);
+    }
+
+    @Override
+    public ToppingType getRewardTopping() {
+        return CHEESE;
     }
 
 }

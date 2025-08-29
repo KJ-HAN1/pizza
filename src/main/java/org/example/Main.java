@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.promotion.PromotionPolicy;
+import org.example.promotion.ToppingPromotionPolicy;
 import org.example.topping.ToppingInventory;
 import org.example.payment.CashManagement;
 import org.example.pizza.*;
@@ -16,7 +16,7 @@ public class Main {
         ToppingInventory inventory = new ToppingInventory();
         CashManagement cashRegister = new CashManagement();
         Scanner scanner = new Scanner(System.in);
-        List<PromotionPolicy> promotions = new ArrayList<>();
+        List<ToppingPromotionPolicy> promotions = new ArrayList<>();
 
         PizzaMachine vm = new PizzaMachine(menu, inventory, cashRegister, scanner, promotions);
         vm.run();

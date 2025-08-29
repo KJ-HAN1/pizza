@@ -1,7 +1,7 @@
 package org.example.vending;
 
 import org.example.Config;
-import org.example.promotion.PromotionPolicy;
+import org.example.promotion.ToppingPromotionPolicy;
 import org.example.topping.ToppingInventory;
 import org.example.topping.ToppingType;
 import org.example.payment.CashPayment;
@@ -24,11 +24,11 @@ public class PizzaMachine {
     private final ToppingInventory toppingInventory;
     private final CashManagement cashManagement;
     private final Scanner scanner;
-    private final List<PromotionPolicy> promotions;
+    private final List<ToppingPromotionPolicy> promotions;
 
 
     public PizzaMachine(List<PizzaTemplate> menu, ToppingInventory inventory,
-                        CashManagement cashRegister, Scanner scanner, List<PromotionPolicy> promotions) {
+                        CashManagement cashRegister, Scanner scanner, List<ToppingPromotionPolicy> promotions) {
         this.menu = menu;
         this.toppingInventory = inventory;
         this.cashManagement = cashRegister;
@@ -136,8 +136,11 @@ public class PizzaMachine {
             }
         }
 
-        for (PromotionPolicy promotion : promotions) {
-            promotion.apply(selected, toppingInventory);
+        for (ToppingPromotionPolicy promotion : promotions) {
+            if(promotion.shouldApply(selected, toppingInventory)) {
+                toppingInventory.consume(promotion.getRewardTopping());
+                System.out.printf("🎇🎇 %s💣 이벤트 당첨! 무료 치즈 토핑 추가! 🎇🎇\n",promotion.getRewardTopping());
+            }
         }
 
         totalSalesCount++;
