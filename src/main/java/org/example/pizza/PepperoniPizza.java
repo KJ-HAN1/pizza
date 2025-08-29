@@ -1,11 +1,13 @@
 package org.example.pizza;
 
 import org.example.topping.ToppingType;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 import static org.example.topping.ToppingType.*;
 
+@Component
 public class PepperoniPizza implements PizzaTemplate {
     @Override
     public String getName() {

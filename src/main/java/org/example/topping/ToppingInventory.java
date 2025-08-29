@@ -1,12 +1,14 @@
 package org.example.topping;
 
 import org.example.pizza.PizzaTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class ToppingInventory {
     private final Map<ToppingType, Integer> stock = new EnumMap<>(ToppingType.class);
 

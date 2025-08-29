@@ -7,20 +7,22 @@ import org.example.topping.ToppingType;
 import org.example.payment.CashPayment;
 import org.example.payment.CashManagement;
 import org.example.pizza.PizzaTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+@Component
 public class PizzaMachine {
     private static final String ADMIN_PW = Config.ADMIN_PW;
     private int totalSalesCount = 0;
     private int totalSalesAmount = 0;
 
     private final List<PizzaTemplate> menu;
-    private final ToppingInventory inventory;
-    private final CashManagement cashRegister;
+    private final ToppingInventory toppingInventory;
+    private final CashManagement cashManagement;
     private final Scanner scanner;
     private final List<PromotionPolicy> promotions;
 
@@ -28,8 +30,8 @@ public class PizzaMachine {
     public PizzaMachine(List<PizzaTemplate> menu, ToppingInventory inventory,
                         CashManagement cashRegister, Scanner scanner, List<PromotionPolicy> promotions) {
         this.menu = menu;
-        this.inventory = inventory;
-        this.cashRegister = cashRegister;
+        this.toppingInventory = inventory;
+        this.cashManagement = cashRegister;
         this.scanner = scanner;
         this.promotions = promotions;
     }
@@ -44,7 +46,7 @@ public class PizzaMachine {
 
 
     private void processOrder(PizzaTemplate selected) {
-        if (!inventory.hasStock(selected)) {
+        if (!toppingInventory.hasStock(selected)) {
             System.out.println("재고가 부족합니다.");
             return;
         }
@@ -73,7 +75,7 @@ public class PizzaMachine {
             }
             System.out.println("추가할 토핑 선택:");
             
-            List<ToppingType> availableToppings = inventory.listAvailableToppings();
+            List<ToppingType> availableToppings = toppingInventory.listAvailableToppings();
             for (int i = 0; i < availableToppings.size(); i++) {
                 /*
                 * totalStock : 총 수량
@@ -81,7 +83,7 @@ public class PizzaMachine {
                 * alreadyReserved : 동일한 추가 토핑 추가
                 * availableForExtra : 총 수량에서 추가한거 뺀거 수량
                 * */
-                int totalStock = inventory.getStock(availableToppings.get(i));
+                int totalStock = toppingInventory.getStock(availableToppings.get(i));
                 int baseNeed = baseRequired.getOrDefault(availableToppings.get(i), 0);
                 int alreadyReserved = extras.getOrDefault(availableToppings.get(i), 0);
                 int availableForExtra = availableToppings.get(i).isStockManage() ? Math.max(0, totalStock - baseNeed - alreadyReserved) : Integer.MAX_VALUE;
@@ -101,7 +103,7 @@ public class PizzaMachine {
             ToppingType chosen = availableToppings.get(choiceTopping);
 
             if (chosen.isStockManage()) {
-                int totalStock = inventory.getStock(chosen);
+                int totalStock = toppingInventory.getStock(chosen);
                 int baseNeed = baseRequired.getOrDefault(chosen, 0);
                 int alreadyReserved = extras.getOrDefault(chosen, 0);
 
@@ -117,25 +119,25 @@ public class PizzaMachine {
             System.out.printf("%s 토핑 추가 예약 완료 (가격 +%d원)\n", chosen, chosen.getCost());
         }
 
-        CashPayment pay = new CashPayment(cashRegister);
+        CashPayment pay = new CashPayment(cashManagement);
         if (!pay.pay(totalPrice)) {
             System.out.println("결제 실패.");
             return;
         }
 
-        inventory.consume(selected);
+        toppingInventory.consume(selected);
 
         //결제 성공시 재고 차감
         ToppingType[] keys = extras.keySet().toArray(new ToppingType[0]);
         for (int i = 0; i < keys.length; i++) {
             int cnt = extras.get(keys[i]);
             for (int j = 0; j < cnt; j++) {
-                inventory.consume(keys[i]);
+                toppingInventory.consume(keys[i]);
             }
         }
 
         for (PromotionPolicy promotion : promotions) {
-            promotion.apply(selected, inventory);
+            promotion.apply(selected, toppingInventory);
         }
 
         totalSalesCount++;
@@ -159,8 +161,8 @@ public class PizzaMachine {
             return;
         }
         System.out.println("관리자 모드 접근");
-        System.out.println(cashRegister);
-        System.out.println(inventory);
+        System.out.println(cashManagement);
+        System.out.println(toppingInventory);
         System.out.printf("총 판매 개수 : %d개%n", totalSalesCount);
         System.out.printf("총 판매액     : %d원%n", totalSalesAmount);
     }

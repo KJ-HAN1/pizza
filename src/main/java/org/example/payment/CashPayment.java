@@ -1,13 +1,16 @@
 package org.example.payment;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Map;
 import java.util.Scanner;
 
+@Component
 public class CashPayment {
-    private final CashManagement register;
+    private final CashManagement cashManagement;
 
     public CashPayment(CashManagement register) {
-        this.register = register;
+        this.cashManagement = register;
     }
 
     /*
@@ -31,7 +34,7 @@ public class CashPayment {
         int change = inserted - amountDue;
         Map<Integer,Integer> changeMap = null;
         if (change > 0) {
-            changeMap = register.returnChange(change);
+            changeMap = cashManagement.returnChange(change);
             if (changeMap == null) {
                 System.out.println("잔돈부족으로 결제 취소, 현금 반환됨.");
                 return false;
@@ -39,7 +42,7 @@ public class CashPayment {
         }
 
         // 기기에 투입 금액 적립
-        register.addAmount(inserted);
+        cashManagement.addAmount(inserted);
 
         if (change > 0) {
             System.out.printf("결제 완료. 잔돈 %d원 반환: %s%n", change, changeMap);

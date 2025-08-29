@@ -3,11 +3,13 @@ package org.example.promotion;
 import org.example.Config;
 import org.example.pizza.PizzaTemplate;
 import org.example.topping.ToppingInventory;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
 import static org.example.topping.ToppingType.CHEESE;
 
+@Component
 public class CheesePromotion implements PromotionPolicy {
     private final LocalDate startPromotionDate;
     private final LocalDate endPromotionDate;

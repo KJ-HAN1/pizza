@@ -1,12 +1,15 @@
 package org.example.payment;
 
 
+import org.springframework.stereotype.Component;
+
 import java.util.*;
 
 /**
  * 자판기 내부에 준비된 현금(권종별 지폐/동전) 재고와
  * 잔돈 계산·지급 로직을 담당.
  */
+@Component
 public class CashManagement {
     private static final List<Integer> MONEYTYPE =
             List.of(10000, 5000, 1000, 500, 100);
