@@ -1,6 +1,6 @@
 package org.example.topping;
 
-import org.example.pizza.Pizza;
+import org.example.pizza.PizzaTemplate;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -17,7 +17,7 @@ public class ToppingInventory {
         }
     }
 
-    public boolean hasStock(Pizza pizza) {
+    public boolean hasStock(PizzaTemplate pizza) {
         List<ToppingType> toppings = pizza.getToppings();
         for (int i = 0; i < toppings.size(); i++) {
             if (toppings.get(i).isStockManage()) {
@@ -29,7 +29,7 @@ public class ToppingInventory {
         return true;
     }
 
-    public void consume(Pizza pizza) {
+    public void consume(PizzaTemplate pizza) {
         List<ToppingType> toppings = pizza.getToppings();
         for (int i = 0; i < toppings.size(); i++) {
             if (toppings.get(i).isStockManage()) {

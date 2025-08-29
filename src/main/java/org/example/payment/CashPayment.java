@@ -3,10 +3,10 @@ package org.example.payment;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Cash {
-    private final CashRegister register;
+public class CashPayment {
+    private final CashManagement register;
 
-    public Cash(CashRegister register) {
+    public CashPayment(CashManagement register) {
         this.register = register;
     }
 

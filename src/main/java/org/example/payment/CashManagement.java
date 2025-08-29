@@ -7,13 +7,13 @@ import java.util.*;
  * 자판기 내부에 준비된 현금(권종별 지폐/동전) 재고와
  * 잔돈 계산·지급 로직을 담당.
  */
-public class CashRegister {
+public class CashManagement {
     private static final List<Integer> MONEYTYPE =
             List.of(10000, 5000, 1000, 500, 100);
 
     private final Map<Integer, Integer> stock = new TreeMap<>(Comparator.reverseOrder());
 
-    public CashRegister() {
+    public CashManagement() {
         //초기 재고는 종류별로 10개씩 채움
         for (int i = 0; i < MONEYTYPE.size(); i++) {
             stock.put(MONEYTYPE.get(i), 10);

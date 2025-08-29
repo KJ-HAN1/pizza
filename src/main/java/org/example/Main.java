@@ -1,10 +1,10 @@
 package org.example;
 
-import org.example.promotion.Promotion;
+import org.example.promotion.PromotionPolicy;
 import org.example.topping.ToppingInventory;
-import org.example.payment.CashRegister;
+import org.example.payment.CashManagement;
 import org.example.pizza.*;
-import org.example.vending.VendingMachine;
+import org.example.vending.PizzaMachine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +12,13 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        List<Pizza> menu = List.of(new Cheese(), new Pepperoni(), new Combination());
+        List<PizzaTemplate> menu = List.of(new CheesePizza(), new PepperoniPizza(), new CombinationPizza());
         ToppingInventory inventory = new ToppingInventory();
-        CashRegister cashRegister = new CashRegister();
+        CashManagement cashRegister = new CashManagement();
         Scanner scanner = new Scanner(System.in);
-        List<Promotion> promotions = new ArrayList<>();
+        List<PromotionPolicy> promotions = new ArrayList<>();
 
-        VendingMachine vm = new VendingMachine(menu, inventory, cashRegister, scanner, promotions);
+        PizzaMachine vm = new PizzaMachine(menu, inventory, cashRegister, scanner, promotions);
         vm.run();
     }
 }

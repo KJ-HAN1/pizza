@@ -8,7 +8,7 @@ import org.example.topping.ToppingType;
 
 import java.util.List;
 
-public interface Pizza {
+public interface PizzaTemplate {
     String getName();
     int getPrice();
     List<ToppingType> getToppings();

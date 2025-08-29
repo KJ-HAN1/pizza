@@ -6,7 +6,7 @@ import java.util.List;
 
 import static org.example.topping.ToppingType.*;
 
-public class Combination implements Pizza {
+public class CombinationPizza implements PizzaTemplate {
     @Override
     public String getName() {
         return "Combination Pizza";

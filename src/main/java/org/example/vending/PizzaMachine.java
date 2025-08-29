@@ -1,32 +1,32 @@
 package org.example.vending;
 
 import org.example.Config;
-import org.example.promotion.Promotion;
+import org.example.promotion.PromotionPolicy;
 import org.example.topping.ToppingInventory;
 import org.example.topping.ToppingType;
-import org.example.payment.Cash;
-import org.example.payment.CashRegister;
-import org.example.pizza.Pizza;
+import org.example.payment.CashPayment;
+import org.example.payment.CashManagement;
+import org.example.pizza.PizzaTemplate;
 
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class VendingMachine {
+public class PizzaMachine {
     private static final String ADMIN_PW = Config.ADMIN_PW;
     private int totalSalesCount = 0;
     private int totalSalesAmount = 0;
 
-    private final List<Pizza> menu;
+    private final List<PizzaTemplate> menu;
     private final ToppingInventory inventory;
-    private final CashRegister cashRegister;
+    private final CashManagement cashRegister;
     private final Scanner scanner;
-    private final List<Promotion> promotions;
+    private final List<PromotionPolicy> promotions;
 
 
-    public VendingMachine(List<Pizza> menu, ToppingInventory inventory,
-                          CashRegister cashRegister, Scanner scanner, List<Promotion> promotions) {
+    public PizzaMachine(List<PizzaTemplate> menu, ToppingInventory inventory,
+                        CashManagement cashRegister, Scanner scanner, List<PromotionPolicy> promotions) {
         this.menu = menu;
         this.inventory = inventory;
         this.cashRegister = cashRegister;
@@ -43,7 +43,7 @@ public class VendingMachine {
     }
 
 
-    private void processOrder(Pizza selected) {
+    private void processOrder(PizzaTemplate selected) {
         if (!inventory.hasStock(selected)) {
             System.out.println("재고가 부족합니다.");
             return;
@@ -117,7 +117,7 @@ public class VendingMachine {
             System.out.printf("%s 토핑 추가 예약 완료 (가격 +%d원)\n", chosen, chosen.getCost());
         }
 
-        Cash pay = new Cash(cashRegister);
+        CashPayment pay = new CashPayment(cashRegister);
         if (!pay.pay(totalPrice)) {
             System.out.println("결제 실패.");
             return;
@@ -134,7 +134,7 @@ public class VendingMachine {
             }
         }
 
-        for (Promotion promotion : promotions) {
+        for (PromotionPolicy promotion : promotions) {
             promotion.apply(selected, inventory);
         }
 
@@ -180,7 +180,7 @@ public class VendingMachine {
                 continue;
             }
 
-            Pizza selected = menu.get(choice - 1);
+            PizzaTemplate selected = menu.get(choice - 1);
             processOrder(selected);
         }
         System.out.println("감사합니다.");
