@@ -11,7 +11,7 @@ import static org.example.topping.ToppingType.*;
 public class CheesePizza implements PizzaTemplate {
     @Override
     public String getName() {
-        return "Cheeze Pizza";
+        return "Cheese Pizza";
     }
 
     @Override
