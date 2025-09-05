@@ -18,6 +18,8 @@ import java.util.Scanner;
 @Component
 public class PizzaMachine {
     private static final String ADMIN_PW = Config.ADMIN_PW;
+    private static final int ADMIN_MODE = 99;
+    private static final int END = 0;
     private int totalSalesCount = 0;
     private int totalSalesAmount = 0;
 
@@ -91,24 +93,40 @@ public class PizzaMachine {
         System.out.println("0) 토핑 선택 종료");
     }
 
+    private void countForAdmin(PizzaTemplate selected) {
+        totalSalesCount++;
+        totalSalesAmount += selected.getPrice()+ extraToppingSelector.getTotalExtraPrice();
+    }
 
-    private void processOrder(PizzaTemplate selected) {
-        if (!toppingInventory.hasStock(selected)) {
-            System.out.println("재고가 부족합니다.");
-            return;
-        }
+    private void resultPrint(PizzaTemplate selected) {
+        System.out.printf(
+                "%s 나왔습니다. 총 결제금액: %d원 (추가 토핑 %d개)%n",
+                selected.getName(),
+                selected.getPrice()+extraToppingSelector.getAndResetTotalExtraPrices(),
+                extraToppingSelector.getAndResetTotalCountExtraToppings()
+        );
+    }
 
-        //토핑추가에 재고 계산용
-        Map<ToppingType, Integer> baseRequired = new EnumMap<>(ToppingType.class);
-        for (ToppingType baseTopping : selected.getToppings()) {
-            if (baseTopping.isStockManage()) {
-                baseRequired.put(baseTopping, baseRequired.getOrDefault(baseTopping, 0) + 1);
+    private void applyPromotions(PizzaTemplate selected) {
+        for (ToppingPromotionPolicy promotion : promotions) {
+            if(promotion.shouldApply(selected, toppingInventory)) {
+                toppingInventory.consume(promotion.getRewardTopping());
+                System.out.printf("🎇🎇 %s💣 이벤트 당첨! 무료 치즈 토핑 추가! 🎇🎇\n",promotion.getRewardTopping());
             }
         }
+    }
 
-        // 토핑 추가 선택
+    private void consumeTopping(Map<ToppingType, Integer> selectExtraTopping) {
+        ToppingType[] keys = selectExtraTopping.keySet().toArray(new ToppingType[0]);
+        for (ToppingType key : keys) {
+            int cnt = selectExtraTopping.get(key);
+            for (int j = 0; j < cnt; j++) {
+                toppingInventory.consume(key);
+            }
+        }
+    }
+    private Map<ToppingType, Integer> selectExtraTopping(Map<ToppingType, Integer> baseRequired) {
         Map<ToppingType, Integer> selectExtraTopping = new EnumMap<>(ToppingType.class);
-
         while (true) {
             System.out.println("\n1) 토핑 추가  2) 결제");
             int toppingChoice = scanner.nextInt();
@@ -136,40 +154,45 @@ public class PizzaMachine {
             ToppingType chosen = toppingInventory.listAvailableToppings().get(choiceTopping);
             System.out.printf("%s 토핑 추가 예약 완료 (가격 +%d원)\n", chosen, chosen.getCost());
         }
+        return selectExtraTopping;
+    }
 
+    private boolean processPayment(PizzaTemplate selected) {
         CashPayment pay = new CashPayment(cashManagement);
         if (!pay.pay(selected.getPrice()+ extraToppingSelector.getTotalExtraPrice())) {
             System.out.println("결제 실패.");
-            return;
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkStock(PizzaTemplate selected) {
+        if (!toppingInventory.hasStock(selected)) {
+            System.out.println("재고가 부족합니다.");
+            return false;
+        }
+        return true;
+    }
+
+    private void processOrder(PizzaTemplate selected) {
+        if (!checkStock(selected)) return;
+
+        //토핑추가에 재고 계산용
+        Map<ToppingType, Integer> baseRequired = new EnumMap<>(ToppingType.class);
+        for (ToppingType baseTopping : selected.getToppings()) {
+            if (baseTopping.isStockManage()) {
+                baseRequired.put(baseTopping, baseRequired.getOrDefault(baseTopping, 0) + 1);
+            }
         }
 
+        Map<ToppingType, Integer> selectExtraToppings = selectExtraTopping(baseRequired);
+        if (!processPayment(selected)) return;
         toppingInventory.consume(selected);
+        consumeTopping(selectExtraToppings);
 
-        //결제 성공시 재고 차감
-        ToppingType[] keys = selectExtraTopping.keySet().toArray(new ToppingType[0]);
-        for (ToppingType key : keys) {
-            int cnt = selectExtraTopping.get(key);
-            for (int j = 0; j < cnt; j++) {
-                toppingInventory.consume(key);
-            }
-        }
-
-        for (ToppingPromotionPolicy promotion : promotions) {
-            if(promotion.shouldApply(selected, toppingInventory)) {
-                toppingInventory.consume(promotion.getRewardTopping());
-                System.out.printf("🎇🎇 %s💣 이벤트 당첨! 무료 치즈 토핑 추가! 🎇🎇\n",promotion.getRewardTopping());
-            }
-        }
-
-        totalSalesCount++;
-        totalSalesAmount += selected.getPrice()+ extraToppingSelector.getTotalExtraPrice();
-
-        System.out.printf(
-            "%s 나왔습니다. 총 결제금액: %d원 (추가 토핑 %d개)%n",
-            selected.getName(),
-            selected.getPrice()+extraToppingSelector.getAndResetTotalExtraPrices(),
-            extraToppingSelector.getAndResetTotalCountExtraToppings()
-        );
+        applyPromotions(selected);
+        countForAdmin(selected);
+        resultPrint(selected);
     }
 
     public void run() {
@@ -177,8 +200,8 @@ public class PizzaMachine {
             printMenu();
             int choice = scanner.nextInt();
 
-            if (choice == 0) break;
-            if (choice == 99) {
+            if (choice == END) break;
+            if (choice == ADMIN_MODE) {
                 enterAdminMode();
                 continue;
             }
